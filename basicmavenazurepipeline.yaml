@@ -1,0 +1,27 @@
+trigger:
+  - main
+
+pool: default
+
+stages:
+  - stage: 
+    jobs:
+      - job: 
+        steps:
+          - task: Maven@4
+            displayName: "Maven Build & Sonar Analysis"
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'package'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
+          - task: CopyFiles@2
+            displayName: "Copy JAR to Artifact Staging Directory"
+            inputs:
+              contents: '**/*.jar'
+              targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+          - publish: '$(Build.ArtifactStagingDirectory)'
+            displayName: "Publish Build Artifact"
+            artifact: drop
